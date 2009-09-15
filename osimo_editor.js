@@ -14,8 +14,16 @@
 
 (function($){
 
-$.fn.osimoeditor = function(customOptions){
+$.fn.osimoeditor = function(customOptions,data){
     $.fn.osimoeditor.$this = $(this); //sets access to jQuery object returned from selector
+    if(typeof customOptions == 'string'){
+    	if(customOptions == 'get'){
+	    	return $.fn.osimoeditor.get($(this).attr('id'));
+	    }
+	    if(customOptions == 'set'){
+	    	$.fn.osimoeditor.set($(this).attr('id'),data);
+	    }
+    }
 	var options = $.extend({},$.fn.osimoeditor.defaultOptions, customOptions);
 	var num = 0;
 	this.each(function(){
@@ -54,6 +62,14 @@ $.fn.osimoeditor.majorVersion = "0";
 $.fn.osimoeditor.minorVersion = "9";
 $.fn.osimoeditor.statusVersion = "beta";
 $.fn.osimoeditor.releaseDate = "September 13, 2009 @ 12:00pm EDT";
+
+$.fn.osimoeditor.get = function(editorID){
+	return $('#'+editorID+'_editbox').attr('value');
+}
+
+$.fn.osimoeditor.set = function(editorID,data){
+	$('#'+editorID+'_editbox').attr('value',data);
+}
 
 function OsimoEditor(input,options,num){
 	this.input = input;
