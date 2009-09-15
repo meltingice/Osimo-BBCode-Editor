@@ -44,7 +44,9 @@ $.fn.osimoeditor.defaultOptions = {
     theme : 'default',
     width : '500px',
     height : false,
-    styles: {}
+    editorHeight: '100px',
+    styles : {},
+    editorStyles : {}
 }
 
 /* Do not edit the rest of the code below unless you know what you are doing! */
@@ -128,7 +130,7 @@ OsimoEditor.prototype.buildEditor = function(){
 	var that = this;
 	var eleAttr = {
 		id : inputID+'_editbox',
-		class : that.input.attr('class'),
+		eClass : that.input.attr('class'),
 		style : that.input.attr('style'),
 		name : that.input.attr('name')
 	};
@@ -136,8 +138,11 @@ OsimoEditor.prototype.buildEditor = function(){
 	/* Begin DOM Injection */
 	var inject = '<textarea ';
 	$.each(eleAttr,function(i,val){
-		if(val){
-			inject += i + '="'+val+'" ';
+		if(i=='eClass'){ inject += 'class="'+val+'" '; }
+		else{
+			if(val){
+				inject += i + '="'+val+'" ';
+			}
 		}
 	});
 	inject += '>'+contents+'</textarea>';
@@ -148,6 +153,9 @@ OsimoEditor.prototype.buildEditor = function(){
 	this.input.replaceWith(template_html);
 	/* End DOM injection */
 	
+	if(!$('#'+eleAttr.id).hasClass('osimo-editor-editbox')){ 
+		$('#'+eleAttr.id).addClass('osimo-editor-editbox');
+	}
 	if(this.options.width){
 		$('#'+inputID).css({'width':that.options.width});
 		$('#'+eleAttr.id).css({'width':that.options.width});
@@ -155,8 +163,14 @@ OsimoEditor.prototype.buildEditor = function(){
 	if(this.options.height){
 		$('#'+inputID).css({'height':that.options.height});
 	}
+	if(this.options.editorHeight){
+		$('#'+eleAttr.id).css({'height':that.options.editorHeight});
+	}
 	if(this.options.styles){
 		$('#'+inputID).css(that.options.styles);
+	}
+	if(this.options.editorStyles){
+		$('#'+eleAttr.id).css(that.options.editorStyles);
 	}
 	
 	this.controls.activate(inputID);
@@ -170,7 +184,7 @@ OsimoEditorControls.prototype.activate = function(inputID){
 	/* First add click events to all buttons */
 	this.input = inputID;
 	var that = this;
-	$.each($('#'+inputID+' .osimo-editor-button'),function(){
+	$.each($('#'+this.input+' .osimo-editor-menu, #'+this.input+' .osimo-editor-button'),function(){
 		$(this).bind('click',function(){
 			var func_name = $(this).attr('class').split(" ")[1].replace(/\-/gi,'_')+'()';
 			func_name = func_name.split("osimo_editor_")[1];
@@ -255,8 +269,30 @@ OsimoEditorControls.prototype.align_right = function(){
 	this.simpleReplace('right');
 }
 
+OsimoEditorControls.prototype.no_code = function(){
+	this.simpleReplace('nocode');	
+}
+
 OsimoEditorControls.prototype.bullet_list = function(){
 	this.customReplace('[list]\n[*]','\n[/list]');
+}
+
+OsimoEditorControls.prototype.font_family = function(){
+	var font = $('#'+this.input+" .osimo-editor-font-family").attr('value');
+	if(font=="") return;
+	this.customReplace("[font=" + font + "]","[/font]");
+}
+
+OsimoEditorControls.prototype.font_size = function(){
+	var size = $('#'+this.input+" .osimo-editor-font-size").attr('value');
+	if(size=="") return;
+	this.customReplace("[size=" + size + "]","[/size]");
+}
+
+OsimoEditorControls.prototype.font_color = function(){
+	var color = $('#'+this.input+" .osimo-editor-font-color").attr('value');
+	if(color=="" || !color) return;
+	this.customReplace("[color=" + color + "]","[/color]");
 }
 
 OsimoEditorControls.prototype.quote_user = function(){
@@ -268,6 +304,22 @@ OsimoEditorControls.prototype.quote_user = function(){
 	else{
 		this.customReplace("[quote=" + user + "]","[/quote]");
 	}
+}
+
+OsimoEditorControls.prototype.image_add = function(){
+	var that = this;
+	this.conditionReplace(
+		function(text){
+			text.replace = "[img]" + text.sel + "[/img]";
+			that.replaceText(text);
+		},
+		function(text){
+			var url = prompt("Enter the URL to the image.","http://");
+			if(url==null || url=="") return;
+			text.replace = "[img]" + url + "[/img]";
+			that.replaceText(text);
+		}
+	);
 }
 
 OsimoEditorControls.prototype.link_add = function(){
@@ -289,6 +341,31 @@ OsimoEditorControls.prototype.link_add = function(){
 			}
 			else{
 				text.replace = "[url=" + url + "]" + content + "[/url]";
+			}
+			that.replaceText(text);
+		}
+	);
+}
+
+OsimoEditorControls.prototype.email_add = function(){
+	var that = this;
+	this.conditionReplace(
+		function(text){
+			var email = prompt("Enter the email address you wish to link to.","");
+			if(email==null || email=="") return;
+			text.replace = "[email=" + email + "]" + text.sel + "[/email]";
+			that.replaceText(text);
+		},
+		function(text){
+			var email = prompt("Enter the email address you wish to link to.","");
+			if(email==null || email=="") return;
+			var content = prompt("Enter the text you want to turn into a link (optional).","");
+			if(content==null) return;
+			if(content==""){
+				text.replace = "[email]" + email + "[/email]";
+			}
+			else{
+				text.replace = "[email=" + email + "]" + content + "[/email]";
 			}
 			that.replaceText(text);
 		}

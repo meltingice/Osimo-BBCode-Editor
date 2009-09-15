@@ -9,7 +9,7 @@
 			
 			<img src="<?=THEMEPATH?>img/text_align_left.png" class="osimo-editor-button osimo-editor-align-left" alt="text_align_left" title="Align Left" />
 			<img src="<?=THEMEPATH?>img/text_align_center.png" class="osimo-editor-button osimo-editor-align-center" alt="text_align_center" title="Align Center" />
-			<img src="<?=THEMEPATH?>img/text_align_right.png" class=" osimo-editor-button osimo-editor-align-right" alt="text_align_right" title="Align Right" />
+			<img src="<?=THEMEPATH?>img/text_align_right.png" class="osimo-editor-button osimo-editor-align-right" alt="text_align_right" title="Align Right" />
 			
 			<img src="<?=THEMEPATH?>img/divider.png" class="osimo-editor-divider" />
 			
@@ -33,7 +33,7 @@
 			
 			<img src="<?=THEMEPATH?>img/divider.png" class="osimo-editor-divider" />
 			
-			<select class="osimo-editor-menu osimo-editor-color-picker">
+			<select class="osimo-editor-menu osimo-editor-font-color">
 				<?=getColorPickerItems()?>
 			</select>
 		</div>
