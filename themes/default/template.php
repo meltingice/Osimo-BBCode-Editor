@@ -21,19 +21,19 @@
 			<img src="<?=THEMEPATH?>img/layout_delete.png" class="osimo-editor-button osimo-editor-no-code" alt="image-no-code" title="[nocode] Tag" />
 		</div>
 		<div class="osimo-editor-controls-content">
-			<select class="osimo-editor-font-family">
+			<select class="osimo-editor-menu osimo-editor-font-family">
 				<?=getFontSelectorItems()?>
 			</select>
 			
 			<img src="<?=THEMEPATH?>img/divider.png" class="osimo-editor-divider" />
 			
-			<select class="osimo-editor-font-size">
+			<select class="osimo-editor-menu osimo-editor-font-size">
 				<?=getFontSizeItems()?>
 			</select>
 			
 			<img src="<?=THEMEPATH?>img/divider.png" class="osimo-editor-divider" />
 			
-			<select class="osimo-editor-color-picker">
+			<select class="osimo-editor-menu osimo-editor-color-picker">
 				<?=getColorPickerItems()?>
 			</select>
 		</div>

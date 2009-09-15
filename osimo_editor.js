@@ -17,10 +17,12 @@
 $.fn.osimoeditor = function(customOptions){
     $.fn.osimoeditor.$this = $(this); //sets access to jQuery object returned from selector
 	var options = $.extend({},$.fn.osimoeditor.defaultOptions, customOptions);
+	var num = 0;
 	this.each(function(){
 		if(!$(this).is('textarea')) return;
 		var input = $(this);
-		new OsimoEditor(input,options);
+		new OsimoEditor(input,options,num);
+		num++;
 	});
 }
 
@@ -41,7 +43,7 @@ $.fn.osimoeditor.defaultOptions = {
      */
     theme : 'default',
     width : '500px',
-    height : '200px',
+    height : false,
     styles: {}
 }
 
@@ -51,9 +53,10 @@ $.fn.osimoeditor.minorVersion = "9";
 $.fn.osimoeditor.statusVersion = "beta";
 $.fn.osimoeditor.releaseDate = "September 13, 2009 @ 12:00pm EDT";
 
-function OsimoEditor(input,options){
+function OsimoEditor(input,options,num){
 	this.input = input;
 	this.options = options;
+	this.num = num;
 	
 	this.init();
 }
@@ -80,8 +83,6 @@ OsimoEditor.prototype.init = function(){
 	
 	this.injectCSS();
 	this.loadTheme();
-    
-    console.log("OsimoEditor loaded!");
 }
 
 OsimoEditor.prototype.injectCSS = function(){
@@ -89,7 +90,13 @@ OsimoEditor.prototype.injectCSS = function(){
 }
 
 OsimoEditor.prototype.loadTheme = function(){
-	if(this.template==''){
+	if(this.template == '' && window.sessionStorage){
+		if(sessionStorage.osimo_bbeditor_theme != null){
+		    this.template = sessionStorage.osimo_bbeditor_theme;
+		}
+	}
+	
+	if(this.template == ''){
 		var obj = this;
 		var postData = {"theme":this.options.theme};
 		$.ajax({
@@ -98,6 +105,9 @@ OsimoEditor.prototype.loadTheme = function(){
 			data:postData,
 			success:function(data){
 				obj.template = data;
+				if(window.sessionStorage){
+					sessionStorage.osimo_bbeditor_theme = data;
+				}
 				obj.buildEditor();
 			}
 		});
@@ -110,10 +120,14 @@ OsimoEditor.prototype.loadTheme = function(){
 OsimoEditor.prototype.buildEditor = function(){
 	/* Copy any preset content that might be in the textarea */
 	var contents = this.input.attr('value');
-	var inputID = '#'+this.input.attr('id');
+	var inputID;
+	this.input.attr('id') != null ? 
+		inputID = this.input.attr('id') : 
+		inputID = 'osimo_editor' + num;
+		
 	var that = this;
 	var eleAttr = {
-		id : that.input.attr('id')+'_editarea',
+		id : inputID+'_editbox',
 		class : that.input.attr('class'),
 		style : that.input.attr('style'),
 		name : that.input.attr('name')
@@ -135,24 +149,150 @@ OsimoEditor.prototype.buildEditor = function(){
 	/* End DOM injection */
 	
 	if(this.options.width){
-		$(inputID).css({'width':that.options.width});
+		$('#'+inputID).css({'width':that.options.width});
 		$('#'+eleAttr.id).css({'width':that.options.width});
 	}
 	if(this.options.height){
-		$(inputID).css({'height':that.options.height});
+		$('#'+inputID).css({'height':that.options.height});
 	}
 	if(this.options.styles){
-		$(inputID).css(that.options.styles);
+		$('#'+inputID).css(that.options.styles);
 	}
 	
+	this.controls.activate(inputID);
 }
 
-function OsimoEditorControls(input){
-	this.input = input;
+function OsimoEditorControls(){
+
 }
 
-OsimoEditorControls.prototype.activateControls = function(){
-	
+OsimoEditorControls.prototype.activate = function(inputID){
+	/* First add click events to all buttons */
+	this.input = inputID;
+	var that = this;
+	$.each($('#'+inputID+' .osimo-editor-button'),function(){
+		$(this).bind('click',function(){
+			var func_name = $(this).attr('class').split(" ")[1].replace(/\-/gi,'_')+'()';
+			func_name = func_name.split("osimo_editor_")[1];
+			eval('that.'+func_name+';');
+		});
+	});
+}
+
+/*
+ *	this.getTextSelection()
+ *	Utility function that returns the text that is selected
+ *	and is cross-browser compatible.
+ */
+OsimoEditorControls.prototype.getTextSelection = function(){
+	var textarea = $('#'+this.input+'_editbox').get(0);
+	if (window.getSelection) {
+		var len = textarea.value.length;
+		var start = textarea.selectionStart;
+		var end = textarea.selectionEnd;
+		var sel = textarea.value.substring(start, end);
+		var result = {"textarea":textarea,"start":start,"end":end,"len":len,"sel":sel};
+		return result;
+	}
+	else if (document.selection) {
+		/* Damn you IE, why must you torture me so? */
+		var range = document.selection.createRange();
+		var stored_range = range.duplicate();
+		stored_range.moveToElementText( textarea );
+		stored_range.setEndPoint( 'EndToEnd', range );
+		textarea.selectionStart = stored_range.text.length - range.text.length;
+		textarea.selectionEnd = textarea.selectionStart + range.text.length;
+		var result = {"textarea":textarea,"start":textarea.selectionStart,"end":textarea.selectionEnd,"len":textarea.value.length,"sel":range.text};
+		return result;
+	}
+}
+
+OsimoEditorControls.prototype.replaceText = function(text){
+	var inputID = '#'+this.input+'_editbox';
+	var replace = $(inputID).attr('value').substring(0,text.start) + text.replace + text.textarea.value.substring(text.end,text.len);
+	$(inputID).attr('value',replace).focus();
+}
+
+OsimoEditorControls.prototype.simpleReplace = function(wrapper){
+	var text = this.getTextSelection();
+	text.replace = '['+wrapper+']' + text.sel + '[/'+wrapper+']';
+	this.replaceText(text);
+}
+
+OsimoEditorControls.prototype.customReplace = function(before,after){
+	var text = this.getTextSelection();
+	text.replace = before + text.sel + after;
+	this.replaceText(text);
+}
+
+OsimoEditorControls.prototype.conditionReplace = function(textSelected,textNotSelected){
+	var text = this.getTextSelection();
+	if(text.sel){ textSelected(text); }
+	else{ textNotSelected(text); }
+}
+
+OsimoEditorControls.prototype.text_bold = function(){
+	this.simpleReplace('b');
+}
+
+OsimoEditorControls.prototype.text_italic = function(){
+	this.simpleReplace('i');
+}
+
+OsimoEditorControls.prototype.text_underline = function(){
+	this.simpleReplace('u');
+}
+
+OsimoEditorControls.prototype.align_left = function(){
+	this.simpleReplace('left');
+}
+
+OsimoEditorControls.prototype.align_center = function(){
+	this.simpleReplace('center');
+}
+
+OsimoEditorControls.prototype.align_right = function(){
+	this.simpleReplace('right');
+}
+
+OsimoEditorControls.prototype.bullet_list = function(){
+	this.customReplace('[list]\n[*]','\n[/list]');
+}
+
+OsimoEditorControls.prototype.quote_user = function(){
+	var user = prompt("Enter the username of the person you are quoting (optional).","");
+	if(user==null) return;
+	if(user==''){
+		this.simpleReplace('quote');
+	}
+	else{
+		this.customReplace("[quote=" + user + "]","[/quote]");
+	}
+}
+
+OsimoEditorControls.prototype.link_add = function(){
+	var that = this;
+	this.conditionReplace(
+		function(text){
+			var url = prompt("Enter the URL you wish to link to.","http://");
+			if(url==null || url=="") return;
+			text.replace = "[url=" + url + "]" + text.sel + "[/url]";
+			that.replaceText(text);
+		},
+		function(text){
+			var url = prompt("Enter the URL you wish to link to.","http://");
+			if(url==null || url=="") return;
+			var content = prompt("Enter the text you want to turn into a link (optional).","");
+			if(content==null) return;
+			if(content==""){
+				text.replace = "[url]" + url + "[/url]";
+			}
+			else{
+				text.replace = "[url=" + url + "]" + content + "[/url]";
+			}
+			that.replaceText(text);
+		}
+	);
 }
 
 })(jQuery);
