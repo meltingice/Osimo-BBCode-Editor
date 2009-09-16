@@ -64,10 +64,10 @@ $.fn.osimoeditor.defaultOptions = {
 }
 
 /* Do not edit the rest of the code below unless you know what you are doing! */
-$.fn.osimoeditor.majorVersion = "0";
-$.fn.osimoeditor.minorVersion = "9";
-$.fn.osimoeditor.statusVersion = "beta";
-$.fn.osimoeditor.releaseDate = "September 13, 2009 @ 12:00pm EDT";
+$.fn.osimoeditor.majorVersion = "1";
+$.fn.osimoeditor.minorVersion = "0";
+$.fn.osimoeditor.statusVersion = "0";
+$.fn.osimoeditor.releaseDate = "September 15, 2009 @ 11:57pm EDT";
 
 $.fn.osimoeditor.get = function(editorID){
 	return $('#'+editorID+'_editbox').attr('value');
