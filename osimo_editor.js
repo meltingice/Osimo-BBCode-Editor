@@ -215,7 +215,9 @@ OsimoEditorControls.prototype.activate = function(inputID){
 	this.input = inputID;
 	var that = this;
 	$.each($('#'+this.input+' .osimo-editor-menu, #'+this.input+' .osimo-editor-button'),function(){
-		$(this).bind('click',function(){
+		if($(this).hasClass('osimo-editor-menu')){ var action = 'change'; }
+		else{ var action = 'click'; }
+		$(this).bind(action,function(){
 			var func_name = $(this).attr('class').split(" ")[1].replace(/\-/gi,'_')+'()';
 			func_name = func_name.split("osimo_editor_")[1];
 			eval('that.'+func_name+';');
