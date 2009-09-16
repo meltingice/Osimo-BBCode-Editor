@@ -20,9 +20,15 @@ $.fn.osimoeditor = function(customOptions,data){
     	if(customOptions == 'get'){
 	    	return $.fn.osimoeditor.get($(this).attr('id'));
 	    }
-	    if(customOptions == 'set'){
+		if(customOptions == 'set'){
 	    	$.fn.osimoeditor.set($(this).attr('id'),data);
-	    }
+		}
+		if(customOptions == 'append'){
+			$.fn.osimoeditor.append($(this).attr('id'),data);
+		}
+		if(customOptions == 'prepend'){
+			$.fn.osimoeditor.prepend($(this).attr('id'),data);
+		}
     }
 	var options = $.extend({},$.fn.osimoeditor.defaultOptions, customOptions);
 	var num = 0;
@@ -42,7 +48,7 @@ $.fn.osimoeditor.defaultOptions = {
      *	osimo_editor files. This path *must* have a trailing
      *	slash and is relative to the document root.
      */
-    editor_path : "os-includes/js/osimo_editor/",
+    editor_path : "js/",
     /*
      *	You can change this value to any theme that you have
      *	in the themes folder for the Osimo Editor. This is
@@ -69,6 +75,14 @@ $.fn.osimoeditor.get = function(editorID){
 
 $.fn.osimoeditor.set = function(editorID,data){
 	$('#'+editorID+'_editbox').attr('value',data);
+}
+
+$.fn.osimoeditor.append = function(editorID,data){
+	$('#'+editorID+'_editbox').attr('value',this.get(editorID) + data);
+}
+
+$.fn.osimoeditor.prepend = function(editorID,data){
+	$('#'+editorID+'_editbox').attr('value',data + this.get(editorID));
 }
 
 function OsimoEditor(input,options,num){
