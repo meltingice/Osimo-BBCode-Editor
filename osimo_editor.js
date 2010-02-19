@@ -65,9 +65,9 @@ $.fn.osimoeditor.defaultOptions = {
 
 /* Do not edit the rest of the code below unless you know what you are doing! */
 $.fn.osimoeditor.majorVersion = "1";
-$.fn.osimoeditor.minorVersion = "0";
+$.fn.osimoeditor.minorVersion = "1";
 $.fn.osimoeditor.statusVersion = "0";
-$.fn.osimoeditor.releaseDate = "September 15, 2009 @ 11:57pm EDT";
+$.fn.osimoeditor.releaseDate = "February 19, 2010 @ 11:57am EDT";
 
 $.fn.osimoeditor.get = function(editorID){
 	return $('#'+editorID+'_editbox').attr('value');
@@ -122,11 +122,11 @@ OsimoEditor.prototype.injectCSS = function(){
 }
 
 OsimoEditor.prototype.loadTheme = function(){
-	if(this.template == '' && window.sessionStorage){
+	/*if(this.template == '' && window.sessionStorage){
 		if(sessionStorage.osimo_bbeditor_theme != null){
 		    this.template = sessionStorage.osimo_bbeditor_theme;
 		}
-	}
+	}*/
 	
 	if(this.template == ''){
 		var obj = this;
@@ -137,9 +137,9 @@ OsimoEditor.prototype.loadTheme = function(){
 			data:postData,
 			success:function(data){
 				obj.template = data;
-				if(window.sessionStorage){
+				/*if(window.sessionStorage){
 					sessionStorage.osimo_bbeditor_theme = data;
-				}
+				}*/
 				obj.buildEditor();
 			}
 		});
@@ -402,6 +402,20 @@ OsimoEditorControls.prototype.email_add = function(){
 			that.replaceText(text);
 		}
 	);
+}
+
+OsimoEditorControls.prototype.zoom_in = function(){
+	var inputID = '#'+this.input+'_editbox';
+	var curFont = Number($(inputID).css('font-size').split('px')[0]);
+	var newSize = curFont + 2;
+	$(inputID).css({'font-size':newSize+'px'});
+}
+
+OsimoEditorControls.prototype.zoom_out = function(){
+	var inputID = '#'+this.input+'_editbox';
+	var curFont = Number($(inputID).css('font-size').split('px')[0]);
+	var newSize = curFont - 2;
+	$(inputID).css({'font-size':newSize+'px'});
 }
 
 })(jQuery);

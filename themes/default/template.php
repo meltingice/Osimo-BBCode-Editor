@@ -19,6 +19,11 @@
 			<img src="<?=THEMEPATH?>img/link_add.png" class="osimo-editor-button osimo-editor-link-add" alt="link-add" title="Add a Link" />
 			<img src="<?=THEMEPATH?>img/email_add.png" class="osimo-editor-button osimo-editor-email-add" alt="email-add" title="Link to Email Addr" />
 			<img src="<?=THEMEPATH?>img/layout_delete.png" class="osimo-editor-button osimo-editor-no-code" alt="image-no-code" title="[nocode] Tag" />
+			
+			<img src="<?=THEMEPATH?>/img/divider.png" class="osimo-editor-divider" />
+			
+			<img src="<?=THEMEPATH?>img/zoom_in.png" class="osimo-editor-button osimo-editor-zoom-in" alt="image-zoom-in" title="Zoom In" />
+			<img src="<?=THEMEPATH?>img/zoom_out.png" class="osimo-editor-button osimo-editor-zoom-out" alt="image-zoom-out" title="Zoom Out" />
 		</div>
 		<div class="osimo-editor-controls-content">
 			<select class="osimo-editor-menu osimo-editor-font-family">
