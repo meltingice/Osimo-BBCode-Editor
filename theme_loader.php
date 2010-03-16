@@ -4,9 +4,11 @@ if(isset($_POST['theme'])){
 	$path = pathinfo($_SERVER['PHP_SELF'],PATHINFO_DIRNAME);
 	define("THEMEPATH",$basepath.$path."/themes/".$_POST['theme']."/");
 	
-	echo "<div class=\"osimo-editor\">";
-	include("themes/".$_POST['theme']."/template.php");
-	echo "</div>";
+	$html = "<div class=\"osimo-editor\">";
+	$html .= include_contents("themes/".$_POST['theme']."/template.php");
+	$html .= "</div>";
+	
+	echo json_encode(array('html'=>$html,'size'=>strlen($html))); exit;
 }
 
 function getFontSelectorItems(){
@@ -70,5 +72,17 @@ function getColorPickerItems(){
 			echo "<option value='$color'>".ucfirst($color)."</option>";
 		}
 	}
+}
+
+function include_contents($filename){
+	if (is_file($filename)) {
+	    ob_start();
+	    include $filename;
+	    $contents = ob_get_contents();
+	    ob_end_clean();
+	    return $contents;
+    }
+    
+    return false;
 }
 ?>

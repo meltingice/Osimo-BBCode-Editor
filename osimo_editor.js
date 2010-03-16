@@ -111,6 +111,7 @@ OsimoEditor.prototype.init = function(){
     
     this.options.theme_path = this.options.editor_path + "themes/" + this.options.theme + "/";
     this.template = '';
+    this.template_size = 0;
 	this.controls = new OsimoEditorControls();
 	
 	this.injectCSS();
@@ -122,11 +123,14 @@ OsimoEditor.prototype.injectCSS = function(){
 }
 
 OsimoEditor.prototype.loadTheme = function(){
-	/*if(this.template == '' && window.sessionStorage){
-		if(sessionStorage.osimo_bbeditor_theme != null){
-		    this.template = sessionStorage.osimo_bbeditor_theme;
+	if(this.template == '' && 'sessionStorage' in window){
+		var temp = window.sessionStorage.osimo_bbeditor_theme;
+		var temp_size = window.sessionStorage.osimo_bbeditor_theme_size;
+		if(temp != null && temp_size != null && temp_size > 0 && temp.length == temp_size){
+		    this.template = temp;
+		    this.template_size = temp_size;
 		}
-	}*/
+	}
 	
 	if(this.template == ''){
 		var obj = this;
@@ -135,11 +139,14 @@ OsimoEditor.prototype.loadTheme = function(){
 			type:'POST',
 			url:obj.options.editor_path+"theme_loader.php",
 			data:postData,
+			dataType:'json',
 			success:function(data){
-				obj.template = data;
-				/*if(window.sessionStorage){
-					sessionStorage.osimo_bbeditor_theme = data;
-				}*/
+				obj.template = data.html;
+				obj.template_size = data.size;
+				if('sessionStorage' in window){
+					window.sessionStorage.osimo_bbeditor_theme = data.html;
+					window.sessionStorage.osimo_bbeditor_theme_size = data.size;
+				}
 				obj.buildEditor();
 			}
 		});
